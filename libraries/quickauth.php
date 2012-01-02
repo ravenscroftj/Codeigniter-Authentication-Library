@@ -191,6 +191,46 @@ class Quickauth
 
 		return $data;
 	}
+	
+	/**
+	 * Set a user attribute in the database - overwrites if necessary
+	 * 
+	 * @param string $id <p>The ID of the user to get the attribute for. 
+	 * If null, this value is filled using the session userdata. </p>
+	 * @param string $key <p>The name of the attribute being set</p>
+	 * @param string $value <p>The value of the attribute</p>
+	 * @return boolean <p>Returns true if the parameter was set ok</p>
+	 */
+	function set_user_attribute($id = null, $key, $value){
+		//get the ID of the user
+		if ($id == null) $id = $this->ci->session->userdata('userid');
+
+		$data = array("attr_value" => $value);
+		
+		$this->ci->db->where('user_id', $id, 'attr_key', $key);
+		
+		$q = $this->db->get('user_attrs');
+		
+		if($q->num_rows() > 0){
+			return $this->db->update("user_attrs", $data);
+		}else{
+			return $this->db->insert("user_attrs", $data);
+		}
+	}
+	
+	/**
+	 * Get an attribute value associated with a given user
+	 * 
+	 * @param string $id <p>The ID of the user to get the attribute for. 
+	 * If null, this value is filled using the session userdata. </p>
+	 * @param string $key <p>The name of the attribute to get</p>
+	 * @return string $value <p>Returns the value of the attribute or 
+	 * null if not set</p>
+	 */
+	function get_user_attribute($id = null, $key){
+		//get the ID of the user
+		if ($id == null) $id = $this->ci->session->userdata('userid');
+	}
 
 	/**
 	 * Check to see if a user is logged in. If not then don't return anything
