@@ -20,7 +20,9 @@ class Quickauth
 		'group_memberships' => 'group_memberships'
 	);
 	var $login = "authentication/login";
-
+	
+	var $redirects = array();
+	
 	var $locale = array (
 		'invalid_login_credentials' => '',
 		'succesful_registration' => '',
@@ -39,6 +41,13 @@ class Quickauth
 	function __construct()
 	{
 		$this->ci =& get_instance();
+		
+		//load the quickauth config and get default values
+		$this->ci->config->load("quickauth", true);
+		
+		$this->_tables = $this->ci->config->item('tables','quickauth');
+		$this->locale = $this->ci->config->item('locale', 'quickauth');
+		$this->redirects = $this->ci->config->item('redirects', 'quickauth');
 	}
 
 	/**
