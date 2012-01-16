@@ -31,7 +31,7 @@ $config['tables'] = array (
  * can be mapped to authentication/login - the view that controls the login 
  * process.
  */
-$config['redirects'] = array()
+$config['redirects'] = array(
 		'login' => "authentication/login",
 		'successful_login' => "authentication/welcome",
 		''

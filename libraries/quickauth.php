@@ -19,7 +19,6 @@ class Quickauth
 		'groups' => 'groups',
 		'group_memberships' => 'group_memberships'
 	);
-	var $login = "authentication/login";
 	
 	var $redirects = array();
 	
@@ -48,6 +47,10 @@ class Quickauth
 		$this->_tables = $this->ci->config->item('tables','quickauth');
 		$this->locale = $this->ci->config->item('locale', 'quickauth');
 		$this->redirects = $this->ci->config->item('redirects', 'quickauth');
+
+		//set up the login redirect
+		$this->ci->session->set_flashdata("REDIRECT_TARGET",
+		$this->redirects['successful_login']);
 	}
 
 	/**
@@ -61,6 +64,7 @@ class Quickauth
 	{
 		$this->ci->db->where('username', $username);
 		$this->ci->db->where('password', $this->encrypt($password));
+		
 		$q = $this->ci->db->get($this->_tables['users']);
 		if ($q->num_rows() > 0) {
 			$a = $q->row_array();
@@ -275,18 +279,20 @@ class Quickauth
 		*/
 		if (!$this->logged_in()) {
 			ui_set_error($this->locale['failed_restrict_nologin']);
-			redirect($this->login);
+			redirect($this->redirects['login']);
 		}
 
 		$userid = $this->ci->session->userdata('userid');
-		$ci->db->where('userid', $id);
-		$q = $ci->db->get($this->_tables['group_memberships']);
+		$this->ci->db->where('userid', $userid);
+		$q = $this->ci->db->get($this->_tables['group_memberships']);
 		$groups = $q->result_array();
 		foreach ($groups as $grp) {
-			$ci->db->where('id', $grp['groupid']);
-			$q = $ci->db->get($this->_tables['groups']);
+			$this->ci->db->where('id', $grp['groupid']);
+			$q = $this->ci->db->get($this->_tables['groups']);
 			$var = $q->row_array();
-			$user_groups[] = $var['name'];
+			
+			
+			$user_groups[] = $var['title'];
 		}
 
 		if (!in_array($group, $user_groups)) {
